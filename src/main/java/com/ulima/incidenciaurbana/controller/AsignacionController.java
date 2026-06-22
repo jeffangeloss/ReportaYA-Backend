@@ -8,12 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/asignaciones")
-@CrossOrigin(origins = "*")
 public class AsignacionController {
 
     private final IAsignacionService asignacionService;
@@ -29,9 +27,7 @@ public class AsignacionController {
             AsignacionDTO asignacionCreada = asignacionService.crearAsignacion(asignacionDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(asignacionCreada);
         } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 }

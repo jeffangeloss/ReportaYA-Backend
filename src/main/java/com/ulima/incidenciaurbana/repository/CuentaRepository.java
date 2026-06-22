@@ -8,6 +8,9 @@ import java.util.Optional;
 
 @Repository
 public interface CuentaRepository extends JpaRepository<Cuenta, Long> {
-    Optional<Cuenta> findByUsuario(String usuario);
     Optional<Cuenta> findByUsuarioAndActivoTrue(String usuario);
+
+    @org.springframework.data.jpa.repository.Query(
+            "SELECT c FROM Cuenta c JOIN c.persona p WHERE LOWER(p.correo) = LOWER(:correo) AND c.activo = true")
+    Optional<Cuenta> findByCorreoAndActivoTrue(@org.springframework.data.repository.query.Param("correo") String correo);
 }

@@ -1,0 +1,46 @@
+### ==========================================
+### CU-01: Login - Ciudadano
+### ==========================================
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "ciudadano",
+  "password": "123456"
+}
+
+### Login - Operador
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "op.maria",
+  "password": "123456"
+}
+
+### Login - Tecnico
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "tec.carlos",
+  "password": "123456"
+}
+
+### Login - Credenciales incorrectas
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "ciudadano",
+  "password": "wrongpassword"
+}
+
+### Login - Usuario no existe
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "noexiste",
+  "password": "123456"
+}

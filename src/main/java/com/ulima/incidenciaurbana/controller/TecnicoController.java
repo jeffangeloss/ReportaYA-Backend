@@ -15,7 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tecnicos")
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 public class TecnicoController {
 
     private final ITecnicoService tecnicoService;
@@ -30,6 +30,21 @@ public class TecnicoController {
             @RequestParam(name = "page", defaultValue = "0") int page) {
         Page<TecnicoDTO> tecnicos = tecnicoService.obtenerTodosTecnicos(page);
         return ResponseEntity.ok(tecnicos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerTecnico(@PathVariable Long id) {
+        try {
+            Page<TecnicoDTO> page = tecnicoService.obtenerTodosTecnicos(0);
+            return page.getContent().stream()
+                    .filter(t -> t.getId().equals(id))
+                    .findFirst()
+                    .map(t -> ResponseEntity.ok((Object) t))
+                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(Map.of("error", "Tecnico no encontrado con id: " + id)));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}/reportes")

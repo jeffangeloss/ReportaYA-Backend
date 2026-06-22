@@ -40,14 +40,10 @@ public class AuthServiceImpl implements AuthService {
             valid = passwordEncoder.matches(request.getPassword(), stored);
         } else {
             valid = stored != null && stored.equals(request.getPassword());
-            if (valid) {
-                needsMigration = true;
-            }
+            if (valid) needsMigration = true;
         }
 
-        if (!valid) {
-            throw new InvalidCredentialsException();
-        }
+        if (!valid) throw new InvalidCredentialsException();
 
         if (needsMigration) {
             c.setContrasenaHash(passwordEncoder.encode(request.getPassword()));
@@ -57,6 +53,33 @@ public class AuthServiceImpl implements AuthService {
         String nombre = (c.getPersona() != null) ? c.getPersona().getNombreCompleto() : "";
         String token = jwtUtil.generateToken(c.getId(), c.getUsuario(), c.getTipoCuenta());
         return new LoginResponse(c.getId(), c.getUsuario(), nombre, "Login exitoso", c.getTipoCuenta(), token);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void solicitarRecuperacion(String correo) {
+        if (correo == null || correo.trim().isEmpty()) {
+            throw new RuntimeException("El correo es obligatorio");
+        }
+        cuentaRepository.findByCorreoAndActivoTrue(correo.trim())
+                .orElseThrow(() -> new RuntimeException("El correo no esta asociado a ninguna cuenta"));
+    }
+
+    @Override
+    @Transactional
+    public void restablecerContrasena(String correo, String nuevaContrasena) {
+        if (correo == null || correo.trim().isEmpty()) {
+            throw new RuntimeException("El correo es obligatorio");
+        }
+        if (nuevaContrasena == null || nuevaContrasena.length() < 6) {
+            throw new RuntimeException("La contrasena debe tener al menos 6 caracteres");
+        }
+
+        Cuenta cuenta = cuentaRepository.findByCorreoAndActivoTrue(correo.trim())
+                .orElseThrow(() -> new RuntimeException("No se encontro una cuenta asociada a este correo"));
+
+        cuenta.cambiarContrasena(passwordEncoder.encode(nuevaContrasena));
+        cuentaRepository.save(cuenta);
     }
 
     private boolean isBcryptHash(String value) {

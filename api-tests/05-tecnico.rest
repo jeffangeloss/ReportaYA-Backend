@@ -1,0 +1,111 @@
+### ==========================================
+### CU-08: Atender reportes (tecnico)
+### ==========================================
+### INSTRUCCION: Primero ejecuta el login de tecnico (tec.carlos) en 01-auth.rest
+### y copia el token aqui:
+@token = PEGAR_TOKEN_TECNICO_AQUI
+
+### Obtener reportes asignados en REVISION
+GET http://localhost:8081/api/tecnicos/4/reportes?estado=REVISION&page=0
+Authorization: Bearer {{token}}
+
+### Obtener reportes asignados FINALIZADOS
+GET http://localhost:8081/api/tecnicos/4/reportes?estado=FINALIZADO&page=0
+Authorization: Bearer {{token}}
+
+### Completar reporte 1042 (REVISION -> FINALIZADO)
+### Envia comentario + 5 fotos base64 en una sola llamada
+PATCH http://localhost:8081/api/tecnicos/4/reportes/1042/completar
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "comentarioResolucion": "Se reparo el hueco en la pista con asfalto en frio. Se verifico la superficie y quedo nivelada.",
+  "fotos": [
+    {
+      "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGO4Y2RENmIY1TyqeVTzqGajAdUMALw89BA13n7YAAAAAElFTkSuQmCC",
+      "tipo": "FINAL",
+      "descripcion": "Pista reparada - vista frontal del area afectada"
+    },
+    {
+      "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGMwmmZENmIY1TyqeVTzqGajAdUMAASRhrDQgGYgAAAAAElFTkSuQmCC",
+      "tipo": "FINAL",
+      "descripcion": "Reparacion completada - superficie nivelada"
+    },
+    {
+      "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGMwSrlDNmIY1TyqeVTzqOY7A6oZANwEQj8QesdLAAAAAElFTkSuQmCC",
+      "tipo": "FINAL",
+      "descripcion": "Zona afectada - vista lateral del trabajo realizado"
+    },
+    {
+      "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGO4s0WObMQwqnlU86jmUc1yA6oZAH9Cn/96Sc44AAAAAElFTkSuQmCC",
+      "tipo": "FINAL",
+      "descripcion": "Senalizacion temporal colocada en el area"
+    },
+    {
+      "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGOYZnSCbMQwqnlU86jmUc0nBlQzAE/jcR+74vnzAAAAAElFTkSuQmCC",
+      "tipo": "FINAL",
+      "descripcion": "Vista panoramica de la reparacion terminada"
+    }
+  ]
+}
+
+### ==========================================
+### Pruebas del endpoint individual de fotos
+### POST /api/reportes/{id}/fotos
+### ==========================================
+
+### Subir foto 1 (Roja) - Evidencia del dano
+POST http://localhost:8081/api/reportes/1042/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGO4Y2RENmIY1TyqeVTzqGajAdUMALw89BA13n7YAAAAAElFTkSuQmCC",
+  "tipo": "INICIAL",
+  "descripcion": "Evidencia del dano - hueco en la pista"
+}
+
+### Subir foto 2 (Verde) - Reparacion completada
+POST http://localhost:8081/api/reportes/1042/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGMwmmZENmIY1TyqeVTzqGajAdUMAASRhrDQgGYgAAAAAElFTkSuQmCC",
+  "tipo": "FINAL",
+  "descripcion": "Reparacion completada - superficie nivelada"
+}
+
+### Subir foto 3 (Azul) - Zona afectada
+POST http://localhost:8081/api/reportes/1042/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGMwSrlDNmIY1TyqeVTzqOY7A6oZANwEQj8QesdLAAAAAElFTkSuQmCC",
+  "tipo": "INICIAL",
+  "descripcion": "Zona afectada antes de la intervencion"
+}
+
+### Subir foto 4 (Amarilla) - Senalizacion
+POST http://localhost:8081/api/reportes/1042/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGO4s0WObMQwqnlU86jmUc1yA6oZAH9Cn/96Sc44AAAAAElFTkSuQmCC",
+  "tipo": "FINAL",
+  "descripcion": "Senalizacion temporal colocada en el area"
+}
+
+### Subir foto 5 (Morada) - Vista panoramica
+POST http://localhost:8081/api/reportes/1042/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGOYZnSCbMQwqnlU86jmUc0nBlQzAE/jcR+74vnzAAAAAElFTkSuQmCC",
+  "tipo": "INICIAL",
+  "descripcion": "Vista panoramica del area reportada"
+}

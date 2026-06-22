@@ -1,0 +1,46 @@
+### ==========================================
+### Pruebas de seguridad - Endpoints protegidos SIN token
+### Todos deben devolver 401
+### ==========================================
+
+### Sin token - debe dar 401
+GET http://localhost:8081/api/reportes
+
+### Sin token - debe dar 401
+GET http://localhost:8081/api/tecnicos
+
+### Sin token - debe dar 401
+GET http://localhost:8081/api/operador/reportes?estado=PENDIENTE
+
+### Token invalido - debe dar 401
+GET http://localhost:8081/api/reportes
+Authorization: Bearer token_falso_12345
+
+### ==========================================
+### Rutas publicas SIN token - deben funcionar
+### ==========================================
+
+### Login (publico)
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "ciudadano",
+  "password": "123456"
+}
+
+### Registro (publico)
+POST http://localhost:8081/api/cuenta
+Content-Type: application/json
+
+{
+  "tipoCuenta": "CIUDADANO",
+  "usuario": "test_publico",
+  "contrasena": "123456",
+  "nombres": "Test",
+  "apellidos": "Publico",
+  "dni": "00000001",
+  "telefono": "900000001",
+  "correo": "test.publico@mail.com",
+  "activo": true
+}

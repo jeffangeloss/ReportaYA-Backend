@@ -1,0 +1,33 @@
+### ==========================================
+### CU-02: Registro de ciudadano
+### ==========================================
+POST http://localhost:8081/api/cuenta
+Content-Type: application/json
+
+{
+  "tipoCuenta": "CIUDADANO",
+  "usuario": "admin",
+  "contrasena": "123456",
+  "nombres": "Pedro",
+  "apellidos": "Gomez",
+  "dni": "99887766",
+  "telefono": "911222333",
+  "correo": "pedro.gomez@mail.com",
+  "activo": true
+}
+
+### Registro - Usuario duplicado (debe fallar)
+POST http://localhost:8081/api/cuenta
+Content-Type: application/json
+
+{
+  "tipoCuenta": "CIUDADANO",
+  "usuario": "ciudadano",
+  "contrasena": "123456",
+  "nombres": "Duplicado",
+  "apellidos": "Test",
+  "dni": "11111111",
+  "telefono": "900000000",
+  "correo": "duplicado@mail.com",
+  "activo": true
+}

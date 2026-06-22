@@ -10,11 +10,6 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-/**
- * JWT generation utility (HS256).
- * Currently only generates tokens; server-side validation in a filter is deferred
- * to the architectural Fix Completo (see plan: "Lo que NO hace este Fix Mínimo").
- */
 @Component
 public class JwtUtil {
 
@@ -25,16 +20,11 @@ public class JwtUtil {
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration-ms:86400000}") long expirationMs
     ) {
-        // Ensure key length >= 256 bits for HS256.
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
         this.signingKey = Keys.hmacShaKeyFor(keyBytes);
         this.expirationMs = expirationMs;
     }
 
-    /**
-     * Generates a stateless JWT for the authenticated account.
-     * Claims: sub = cuentaId, usuario, tipoCuenta. Expiration: 24h by default.
-     */
     public String generateToken(Long cuentaId, String usuario, String tipoCuenta) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
@@ -49,11 +39,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    /**
-     * Parses and validates the signature/expiration of a JWT.
-     * Throws JwtException subclasses on invalid/expired tokens.
-     * Not yet wired into a filter — exposed for future Fix Completo.
-     */
     public Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(signingKey)

@@ -7,56 +7,48 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Controller para operaciones CRUD de Ciudadanos
- * NOTA: Para CREAR ciudadanos, usar el endpoint unificado: POST /api/cuenta
- * Este controller solo maneja: Leer, Actualizar, Eliminar
- */
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/ciudadanos")
-@CrossOrigin(origins = "*")
 public class CiudadanoController {
-    
+
     private final ICiudadanoService ciudadanoService;
-    
+
     @Autowired
     public CiudadanoController(ICiudadanoService ciudadanoService) {
         this.ciudadanoService = ciudadanoService;
     }
-    
-    // NOTA: Método crearCiudadano eliminado
-    // Usar POST /api/cuenta con tipoCuenta: "CIUDADANO"
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<CiudadanoDTO> obtenerCiudadano(@PathVariable Long id) {
+    public ResponseEntity<?> obtenerCiudadano(@PathVariable Long id) {
         try {
             CiudadanoDTO ciudadano = ciudadanoService.obtenerCiudadanoPorId(id);
-            return new ResponseEntity<>(ciudadano, HttpStatus.OK);
+            return ResponseEntity.ok(ciudadano);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
-    
-    
+
     @PutMapping("/{id}")
-    public ResponseEntity<CiudadanoDTO> actualizarCiudadano(
+    public ResponseEntity<?> actualizarCiudadano(
             @PathVariable Long id,
             @RequestBody CiudadanoDTO ciudadanoDTO) {
         try {
-            CiudadanoDTO ciudadanoActualizado = ciudadanoService.actualizarCiudadano(id, ciudadanoDTO);
-            return new ResponseEntity<>(ciudadanoActualizado, HttpStatus.OK);
+            CiudadanoDTO actualizado = ciudadanoService.actualizarCiudadano(id, ciudadanoDTO);
+            return ResponseEntity.ok(actualizado);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
-    
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarCiudadano(@PathVariable Long id) {
+    public ResponseEntity<?> eliminarCiudadano(@PathVariable Long id) {
         try {
             ciudadanoService.eliminarCiudadano(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 }

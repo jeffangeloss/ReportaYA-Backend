@@ -1,0 +1,57 @@
+### ==========================================
+### CU-06: Validar reportes (operador)
+### CU-07: Asignar tecnicos (operador)
+### ==========================================
+### INSTRUCCION: Primero ejecuta el login de operador (op.maria) en 01-auth.rest
+### y copia el token aqui:
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwidXN1YXJpbyI6Im9wLm1hcmlhIiwidGlwb0N1ZW50YSI6Ik9QRVJBRE9SX01VTklDSVBBTCIsImlhdCI6MTc4MjA5NzI5MSwiZXhwIjoxNzgyMTgzNjkxfQ.-2V7fPie-739HpSubpF7A5KQprH4d3-SaSSnTErApra1AtrXkzItHvaweNgfuf3k2WuLDasUKphRL8TFJN8HBw
+
+### Obtener reportes PENDIENTES (cola del operador)
+GET http://localhost:8081/api/operador/reportes?estado=PENDIENTE&page=0
+Authorization: Bearer {{token}}
+
+### Obtener reportes en REVISION
+GET http://localhost:8081/api/operador/reportes?estado=REVISION&page=0
+Authorization: Bearer {{token}}
+
+### Obtener reportes FINALIZADOS
+GET http://localhost:8081/api/operador/reportes?estado=FINALIZADO&page=0
+Authorization: Bearer {{token}}
+
+### Aceptar reporte 1040 (PENDIENTE -> REVISION)
+POST http://localhost:8081/api/operador/reportes/1040/aceptar
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "operadorId": 
+}
+
+### Rechazar reporte 1038 (PENDIENTE -> RECHAZADO)
+POST http://localhost:8081/api/operador/reportes/1038/rechazar
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "operadorId": 3,
+  "motivo": "El reporte no tiene suficiente informacion para proceder"
+}
+
+### ==========================================
+### CU-07: Asignar tecnico
+### ==========================================
+
+### Listar tecnicos disponibles
+GET http://localhost:8081/api/tecnicos?page=0
+Authorization: Bearer {{token}}
+
+### Asignar tecnico Carlos (id=4) al reporte 1040
+POST http://localhost:8081/api/asignaciones
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "reporteId": 1040,
+  "operadorId": 3,
+  "tecnicoId": 4
+}

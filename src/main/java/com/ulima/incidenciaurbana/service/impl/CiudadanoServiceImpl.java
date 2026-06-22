@@ -11,65 +11,54 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class CiudadanoServiceImpl implements ICiudadanoService {
-    
+
     private final CiudadanoRepository ciudadanoRepository;
-    
+
     @Autowired
     public CiudadanoServiceImpl(CiudadanoRepository ciudadanoRepository) {
         this.ciudadanoRepository = ciudadanoRepository;
     }
-    
+
     @Override
     @Transactional(readOnly = true)
     public CiudadanoDTO obtenerCiudadanoPorId(Long id) {
-        if (id == null) {
-            throw new RuntimeException("El ID del ciudadano es obligatorio");
-        }
-        long ciudadanoId = id;
-        Ciudadano ciudadano = ciudadanoRepository.findById(ciudadanoId)
-            .orElseThrow(() -> new RuntimeException("Ciudadano no encontrado con id: " + ciudadanoId));
+        if (id == null) throw new RuntimeException("El ID del ciudadano es obligatorio");
+        Ciudadano ciudadano = ciudadanoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ciudadano no encontrado con id: " + id));
         return convertirADTO(ciudadano);
     }
-    
-    
+
     @Override
     public CiudadanoDTO actualizarCiudadano(Long id, CiudadanoDTO ciudadanoDTO) {
-        if (id == null) {
-            throw new RuntimeException("El ID del ciudadano es obligatorio");
-        }
-        long ciudadanoId = id;
-        Ciudadano ciudadano = ciudadanoRepository.findById(ciudadanoId)
-            .orElseThrow(() -> new RuntimeException("Ciudadano no encontrado con id: " + ciudadanoId));
-        
+        if (id == null) throw new RuntimeException("El ID del ciudadano es obligatorio");
+        Ciudadano ciudadano = ciudadanoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ciudadano no encontrado con id: " + id));
+
         ciudadano.getPersona().setTelefono(ciudadanoDTO.getTelefono());
         ciudadano.getPersona().setCorreo(ciudadanoDTO.getCorreo());
-        
+
         ciudadano = ciudadanoRepository.save(ciudadano);
         return convertirADTO(ciudadano);
     }
-    
+
     @Override
     public void eliminarCiudadano(Long id) {
-        if (id == null) {
-            throw new RuntimeException("El ID del ciudadano es obligatorio");
+        if (id == null) throw new RuntimeException("El ID del ciudadano es obligatorio");
+        if (!ciudadanoRepository.existsById(id)) {
+            throw new RuntimeException("Ciudadano no encontrado con id: " + id);
         }
-        long ciudadanoId = id;
-        if (!ciudadanoRepository.existsById(ciudadanoId)) {
-            throw new RuntimeException("Ciudadano no encontrado con id: " + ciudadanoId);
-        }
-        ciudadanoRepository.deleteById(ciudadanoId);
+        ciudadanoRepository.deleteById(id);
     }
-    
+
     private CiudadanoDTO convertirADTO(Ciudadano ciudadano) {
         return new CiudadanoDTO(
-            ciudadano.getId(),
-            ciudadano.getUsuario(),
-            ciudadano.getPersona().getNombres(),
-            ciudadano.getPersona().getApellidos(),
-            ciudadano.getPersona().getDni(),
-            ciudadano.getPersona().getTelefono(),
-            ciudadano.getPersona().getCorreo(),
-            ciudadano.isActivo()
-        );
+                ciudadano.getId(),
+                ciudadano.getUsuario(),
+                ciudadano.getPersona().getNombres(),
+                ciudadano.getPersona().getApellidos(),
+                ciudadano.getPersona().getDni(),
+                ciudadano.getPersona().getTelefono(),
+                ciudadano.getPersona().getCorreo(),
+                ciudadano.isActivo());
     }
 }

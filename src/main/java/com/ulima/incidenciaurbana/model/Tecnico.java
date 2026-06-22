@@ -11,20 +11,12 @@ public class Tecnico extends Cuenta {
         super();
     }
 
-    @Override
-    public String getTipoCuenta() {
-        return "TECNICO";
-    }
-
     public Tecnico(String usuario, String contrasenaHash, Persona persona) {
         super(usuario, contrasenaHash, persona);
     }
 
-    /*
-     * public void completarAsignacion(Asignacion asignacion) {
-     * if (asignacion != null) {
-     * asignacion.setFechaCierre(java.time.LocalDateTime.now());
-     * }
-     * }
-     */
+    @Override
+    public String getTipoCuenta() {
+        return "TECNICO";
+    }
 }

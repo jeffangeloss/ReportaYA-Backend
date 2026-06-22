@@ -1,0 +1,85 @@
+### ==========================================
+### CU-04: Crear reporte (ciudadano)
+### CU-05: Consultar reportes
+### ==========================================
+### INSTRUCCION: Primero ejecuta el login de ciudadano en 01-auth.rest
+### y copia el token de la respuesta aqui abajo:
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwidXN1YXJpbyI6ImNpdWRhZGFubyIsInRpcG9DdWVudGEiOiJDSVVEQURBTk8iLCJpYXQiOjE3ODIwOTY4MTQsImV4cCI6MTc4MjE4MzIxNH0.8Ci5pFx5fJvJfPKCGaEZWW_SwpO8Vh1S0LseRymCyiO0ArW-W64V-x7Re-eP8E3elVJenjW77XoY5Rg6jVpxeA
+
+### ==========================================
+### PASO 1: Crear reporte (sin fotos)
+### ==========================================
+POST http://localhost:8081/api/reportes
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "titulo": "Vereda rota en la esquina",
+  "descripcion": "La vereda esta levantada y es peligrosa para peatones, especialmente de noche.",
+  "cuentaId": 1,
+  "tipoProblema": "INFRAESTRUCTURA",
+  "ubicacion": {
+    "latitud": -12.0900,
+    "longitud": -77.0500,
+    "direccion": "Av. Salaverry 1200, Jesus Maria"
+  }
+}
+
+### ==========================================
+### PASO 2: Subir fotos al reporte creado
+### IMPORTANTE: Cambia el ID del reporte por el que te devolvio el paso 1
+### ==========================================
+
+### Foto 1 - Vista general del daño
+POST http://localhost:8081/api/reportes/1043/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGO4Y2RENmIY1TyqeVTzqGajAdUMALw89BA13n7YAAAAAElFTkSuQmCC",
+  "tipo": "INICIAL",
+  "descripcion": "Vista general del daño en la vereda"
+}
+
+### Foto 2 - Detalle del daño
+POST http://localhost:8081/api/reportes/1043/fotos
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "archivoBase64": "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAG0lEQVR4nGMwmmZENmIY1TyqeVTzqGajAdUMAASRhrDQgGYgAAAAAElFTkSuQmCC",
+  "tipo": "INICIAL",
+  "descripcion": "Detalle de la vereda levantada"
+}
+
+### ==========================================
+### CU-05: Consultar reportes
+### ==========================================
+
+### Obtener todos los reportes (con paginacion)
+GET http://localhost:8081/api/reportes?page=0
+Authorization: Bearer {{token}}
+
+### Filtrar reportes por estado
+GET http://localhost:8081/api/reportes?estado=PENDIENTE&page=0
+Authorization: Bearer {{token}}
+
+### Obtener reportes del ciudadano (cuenta id=1 = Ana Quispe)
+GET http://localhost:8081/api/reportes/cuenta/1?page=0
+Authorization: Bearer {{token}}
+
+### Obtener detalle de un reporte (incluye fotos dentro)
+GET http://localhost:8081/api/reportes/1042
+Authorization: Bearer {{token}}
+
+### Obtener reportes para el mapa
+GET http://localhost:8081/api/reportes/mapa
+Authorization: Bearer {{token}}
+
+### Mapa filtrado por estado y tipo
+GET http://localhost:8081/api/reportes/mapa?estado=PENDIENTE&tipo=SEGURIDAD
+Authorization: Bearer {{token}}
+
+### Obtener historial de estados de un reporte
+GET http://localhost:8081/api/historial-estados/reporte/1042
+Authorization: Bearer {{token}}

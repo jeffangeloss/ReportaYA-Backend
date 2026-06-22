@@ -4,52 +4,24 @@ import com.ulima.incidenciaurbana.model.EstadoReporte;
 import com.ulima.incidenciaurbana.model.Reporte;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
 @Repository
 public interface ReporteRepository extends JpaRepository<Reporte, Long>, JpaSpecificationExecutor<Reporte> {
 
-        @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
-        Page<Reporte> findByCuentaId(Long cuentaId, Pageable pageable);
+    @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
+    Page<Reporte> findByCuentaId(Long cuentaId, Pageable pageable);
 
-        // Query paginada con EntityGraph para operaciones normales
-        @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
-        Page<Reporte> findByEstado(EstadoReporte estado, Pageable pageable);
+    @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
+    Page<Reporte> findByEstado(EstadoReporte estado, Pageable pageable);
 
-        // Anthony-dev
-        // Query con JOIN FETCH para cargar relaciones (sin paginación)
-        // Usada cuando necesitamos todas las relaciones sin paginar
-        @Query("SELECT DISTINCT r FROM Reporte r " +
-                        "LEFT JOIN FETCH r.cuenta c " +
-                        "LEFT JOIN FETCH c.persona " +
-                        "LEFT JOIN FETCH r.ubicacion " +
-                        "WHERE r.estado = :estado " +
-                        "ORDER BY r.fechaCreacion DESC")
-        List<Reporte> findByEstadoWithDetails(@Param("estado") EstadoReporte estado);
+    @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
+    Page<Reporte> findByTecnicoIdAndEstado(Long tecnicoId, EstadoReporte estado, Pageable pageable);
 
-        @Query("SELECT DISTINCT r FROM Reporte r " +
-                        "LEFT JOIN FETCH r.cuenta c " +
-                        "LEFT JOIN FETCH c.persona " +
-                        "LEFT JOIN FETCH r.ubicacion " +
-                        "LEFT JOIN FETCH r.tecnico t " +
-                        "LEFT JOIN FETCH t.persona " +
-                        "WHERE r.id = :id")
-        Optional<Reporte> findByIdWithDetails(@Param("id") Long id);
-
-        @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
-        Page<Reporte> findByTecnicoIdAndEstado(Long tecnicoId, EstadoReporte estado, Pageable pageable);
-
-        // Query paginada general - usa EntityGraph para todas las relaciones
-        @Override
-        @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
-        Page<Reporte> findAll(Pageable pageable);
+    @Override
+    @EntityGraph(attributePaths = { "ubicacion", "cuenta", "cuenta.persona" })
+    Page<Reporte> findAll(Pageable pageable);
 }

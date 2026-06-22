@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TecnicoRepository extends JpaRepository<Tecnico, Long> {
-    // JpaRepository ya proporciona findAll(Pageable)
 }
