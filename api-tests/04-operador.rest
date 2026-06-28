@@ -4,7 +4,7 @@
 ### ==========================================
 ### INSTRUCCION: Primero ejecuta el login de operador (op.maria) en 01-auth.rest
 ### y copia el token aqui:
-@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwidXN1YXJpbyI6Im9wLm1hcmlhIiwidGlwb0N1ZW50YSI6Ik9QRVJBRE9SX01VTklDSVBBTCIsImlhdCI6MTc4MjA5NzI5MSwiZXhwIjoxNzgyMTgzNjkxfQ.-2V7fPie-739HpSubpF7A5KQprH4d3-SaSSnTErApra1AtrXkzItHvaweNgfuf3k2WuLDasUKphRL8TFJN8HBw
+@token = 
 
 ### Obtener reportes PENDIENTES (cola del operador)
 GET http://localhost:8081/api/operador/reportes?estado=PENDIENTE&page=0
@@ -19,12 +19,12 @@ GET http://localhost:8081/api/operador/reportes?estado=FINALIZADO&page=0
 Authorization: Bearer {{token}}
 
 ### Aceptar reporte 1040 (PENDIENTE -> REVISION)
-POST http://localhost:8081/api/operador/reportes/1040/aceptar
+POST http://localhost:8081/api/operador/reportes/1043/aceptar
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "operadorId": 
+  "operadorId": 3
 }
 
 ### Rechazar reporte 1038 (PENDIENTE -> RECHAZADO)

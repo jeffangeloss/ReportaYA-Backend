@@ -4,6 +4,7 @@ import com.ulima.incidenciaurbana.dto.ReporteDTO;
 import com.ulima.incidenciaurbana.model.*;
 import com.ulima.incidenciaurbana.repository.CuentaRepository;
 import com.ulima.incidenciaurbana.repository.ReporteRepository;
+import com.ulima.incidenciaurbana.repository.TecnicoRepository;
 import com.ulima.incidenciaurbana.repository.UbicacionRepository;
 import com.ulima.incidenciaurbana.repository.HistorialEstadoRepository;
 import com.ulima.incidenciaurbana.service.IReporteService;
@@ -18,6 +19,7 @@ public class ReporteServiceImpl implements IReporteService {
 
     private final ReporteRepository reporteRepository;
     private final CuentaRepository cuentaRepository;
+    private final TecnicoRepository tecnicoRepository;
     private final UbicacionRepository ubicacionRepository;
     private final HistorialEstadoRepository historialEstadoRepository;
     private final INotificationService notificationService;
@@ -26,12 +28,14 @@ public class ReporteServiceImpl implements IReporteService {
     @Autowired
     public ReporteServiceImpl(ReporteRepository reporteRepository,
             CuentaRepository cuentaRepository,
+            TecnicoRepository tecnicoRepository,
             UbicacionRepository ubicacionRepository,
             HistorialEstadoRepository historialEstadoRepository,
             INotificationService notificationService,
             ReporteQueryServiceImpl queryService) {
         this.reporteRepository = reporteRepository;
         this.cuentaRepository = cuentaRepository;
+        this.tecnicoRepository = tecnicoRepository;
         this.ubicacionRepository = ubicacionRepository;
         this.historialEstadoRepository = historialEstadoRepository;
         this.notificationService = notificationService;
@@ -151,14 +155,10 @@ public class ReporteServiceImpl implements IReporteService {
                     "El reporte debe estar en estado REVISION para asignar tecnico. Estado actual: " + reporte.getEstado());
         }
 
-        Cuenta cuenta = cuentaRepository.findById(tecnicoId)
+        Tecnico tecnico = tecnicoRepository.findById(tecnicoId)
                 .orElseThrow(() -> new RuntimeException("Tecnico no encontrado con id: " + tecnicoId));
 
-        if (!(cuenta instanceof Tecnico)) {
-            throw new RuntimeException("El usuario con id " + tecnicoId + " no es un tecnico");
-        }
-
-        reporte.setTecnico((Tecnico) cuenta);
+        reporte.setTecnico(tecnico);
         reporte = reporteRepository.save(reporte);
 
         notificationService.enviarNotificacion(reporte.getCuenta().getId(),

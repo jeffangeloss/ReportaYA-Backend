@@ -5,6 +5,7 @@ import com.ulima.incidenciaurbana.dto.ReporteDTO;
 import com.ulima.incidenciaurbana.dto.UbicacionDTO;
 import com.ulima.incidenciaurbana.model.*;
 import com.ulima.incidenciaurbana.repository.ReporteRepository;
+import com.ulima.incidenciaurbana.repository.ReporteSpecification;
 import com.ulima.incidenciaurbana.service.IReporteQueryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -58,19 +59,7 @@ public class ReporteQueryServiceImpl implements IReporteQueryService {
 
     @Override
     public List<ReporteDTO> obtenerReportesMapa(EstadoReporte estado, TipoProblema tipo) {
-        org.springframework.data.jpa.domain.Specification<Reporte> spec = (root, query, cb) -> {
-            java.util.List<jakarta.persistence.criteria.Predicate> predicates = new java.util.ArrayList<>();
-
-            if (estado != null) predicates.add(cb.equal(root.get("estado"), estado));
-            if (tipo != null) predicates.add(cb.equal(root.get("tipoProblema"), tipo));
-
-            root.fetch("ubicacion", jakarta.persistence.criteria.JoinType.LEFT);
-            root.fetch("cuenta", jakarta.persistence.criteria.JoinType.LEFT);
-
-            return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
-        };
-
-        return reporteRepository.findAll(spec).stream()
+        return reporteRepository.findAll(ReporteSpecification.filtrarParaMapa(estado, tipo)).stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
