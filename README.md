@@ -82,7 +82,7 @@ El token se obtiene con `POST /api/auth/login` y tiene validez de 24 horas.
 
 | Metodo | Ruta | Descripcion | CU |
 |---|---|---|---|
-| POST | `/api/auth/login` | Iniciar sesion | CU-01 |
+| POST | `/api/auth/login` | Iniciar sesion (retorna 403 si la cuenta aun no verifico su correo) | CU-01 |
 | POST | `/api/auth/recuperar-password` | Solicitar recuperacion de contrasena | CU-03 |
 | POST | `/api/auth/restablecer-password` | Restablecer contrasena | CU-03 |
 
@@ -152,6 +152,25 @@ El token se obtiene con `POST /api/auth/login` y tiene validez de 24 horas.
 |---|---|---|---|
 | POST | `/api/notificaciones/registrar-token` | Registrar token FCM del dispositivo | - |
 | POST | `/api/notificaciones/enviar-prueba` | Enviar notificacion de prueba | - |
+
+## Verificacion de cuenta por correo (Resend)
+
+Al registrarse, la cuenta nace **inactiva** (`activo=false`) y no puede iniciar sesion
+hasta confirmar el correo. El envio del enlace se hace con [Resend](https://resend.com).
+
+```
+1. Ciudadano se registra        → POST /api/cuenta                       (cuenta inactiva + correo enviado)
+2. Login antes de verificar     → POST /api/auth/login                   → 403 "Debes verificar tu correo"
+3. Ciudadano abre el enlace     → GET  /api/cuenta/verificar?token=...    (activa la cuenta)
+4. Login despues de verificar   → POST /api/auth/login                   → 200 + JWT
+```
+
+- **Token:** UUID con validez de 24 h, guardado en `cuentas.token_verificacion`; se limpia al verificar.
+- **Reenvio:** `POST /api/cuenta/reenviar-verificacion` con `{"correo":"..."}`. Responde siempre 200 generico (no revela si el correo existe ni su estado).
+- **Config** (en `application-local.properties`): `RESEND_API_KEY`, `RESEND_FROM` (remitente de un dominio verificado en Resend) y `APP_BASE_URL` (base del enlace). Si `RESEND_API_KEY` esta vacio, el enlace se imprime en consola (modo dev) y no se envia correo.
+- El registro publico solo crea cuentas de tipo `CIUDADANO`.
+
+Probar el flujo completo con `api-tests/07-verificacion-correo.rest`.
 
 ## Flujo de estados
 
