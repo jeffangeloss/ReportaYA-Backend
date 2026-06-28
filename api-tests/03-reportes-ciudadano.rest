@@ -4,8 +4,7 @@
 ### ==========================================
 ### INSTRUCCION: Primero ejecuta el login de ciudadano en 01-auth.rest
 ### y copia el token de la respuesta aqui abajo:
-@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwidXN1YXJpbyI6ImNpdWRhZGFubyIsInRpcG9DdWVudGEiOiJDSVVEQURBTk8iLCJpYXQiOjE3ODIwOTY4MTQsImV4cCI6MTc4MjE4MzIxNH0.8Ci5pFx5fJvJfPKCGaEZWW_SwpO8Vh1S0LseRymCyiO0ArW-W64V-x7Re-eP8E3elVJenjW77XoY5Rg6jVpxeA
-
+@token = 
 ### ==========================================
 ### PASO 1: Crear reporte (sin fotos)
 ### ==========================================
@@ -14,7 +13,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "titulo": "Vereda rota en la esquina",
+  "titulo": "prueba de reporte de vereda levantada",
   "descripcion": "La vereda esta levantada y es peligrosa para peatones, especialmente de noche.",
   "cuentaId": 1,
   "tipoProblema": "INFRAESTRUCTURA",

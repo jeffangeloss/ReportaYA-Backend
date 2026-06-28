@@ -3,7 +3,7 @@
 ### ==========================================
 ### INSTRUCCION: Primero ejecuta el login de tecnico (tec.carlos) en 01-auth.rest
 ### y copia el token aqui:
-@token = PEGAR_TOKEN_TECNICO_AQUI
+@token = 
 
 ### Obtener reportes asignados en REVISION
 GET http://localhost:8081/api/tecnicos/4/reportes?estado=REVISION&page=0

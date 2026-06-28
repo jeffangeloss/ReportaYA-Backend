@@ -2,46 +2,44 @@ package com.ulima.incidenciaurbana.service.impl;
 
 import com.ulima.incidenciaurbana.dto.AsignacionDTO;
 import com.ulima.incidenciaurbana.dto.ReporteDTO;
-import com.ulima.incidenciaurbana.model.*;
-import com.ulima.incidenciaurbana.repository.CuentaRepository;
+import com.ulima.incidenciaurbana.model.OperadorMunicipal;
+import com.ulima.incidenciaurbana.model.Tecnico;
+import com.ulima.incidenciaurbana.repository.OperadorMunicipalRepository;
+import com.ulima.incidenciaurbana.repository.TecnicoRepository;
 import com.ulima.incidenciaurbana.service.IAsignacionService;
 import com.ulima.incidenciaurbana.service.IReporteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional
 public class AsignacionServiceImpl implements IAsignacionService {
 
-    private final CuentaRepository cuentaRepository;
+    private final OperadorMunicipalRepository operadorRepository;
+    private final TecnicoRepository tecnicoRepository;
     private final IReporteService reporteService;
 
     @Autowired
-    public AsignacionServiceImpl(CuentaRepository cuentaRepository, IReporteService reporteService) {
-        this.cuentaRepository = cuentaRepository;
+    public AsignacionServiceImpl(OperadorMunicipalRepository operadorRepository,
+            TecnicoRepository tecnicoRepository,
+            IReporteService reporteService) {
+        this.operadorRepository = operadorRepository;
+        this.tecnicoRepository = tecnicoRepository;
         this.reporteService = reporteService;
     }
 
     @Override
     public AsignacionDTO crearAsignacion(AsignacionDTO asignacionDTO) {
-        Cuenta operadorCuenta = cuentaRepository.findById(asignacionDTO.getOperadorId())
+        OperadorMunicipal operador = operadorRepository.findById(asignacionDTO.getOperadorId())
                 .orElseThrow(() -> new RuntimeException(
                         "Operador no encontrado con id: " + asignacionDTO.getOperadorId()));
 
-        if (!(operadorCuenta instanceof OperadorMunicipal)) {
-            throw new RuntimeException(
-                    "El usuario con id " + asignacionDTO.getOperadorId() + " no es un operador municipal");
-        }
-
-        Cuenta tecnicoCuenta = cuentaRepository.findById(asignacionDTO.getTecnicoId())
+        Tecnico tecnico = tecnicoRepository.findById(asignacionDTO.getTecnicoId())
                 .orElseThrow(() -> new RuntimeException(
                         "Tecnico no encontrado con id: " + asignacionDTO.getTecnicoId()));
-
-        if (!(tecnicoCuenta instanceof Tecnico)) {
-            throw new RuntimeException(
-                    "El usuario con id " + asignacionDTO.getTecnicoId() + " no es un tecnico");
-        }
 
         ReporteDTO reporte = reporteService.asignarTecnico(asignacionDTO.getReporteId(), asignacionDTO.getTecnicoId());
 
@@ -51,8 +49,8 @@ public class AsignacionServiceImpl implements IAsignacionService {
                 asignacionDTO.getOperadorId(),
                 asignacionDTO.getTecnicoId(),
                 reporte.getTitulo(),
-                operadorCuenta.getPersona().getNombreCompleto(),
-                tecnicoCuenta.getPersona().getNombreCompleto(),
-                java.time.LocalDateTime.now());
+                operador.getPersona().getNombreCompleto(),
+                tecnico.getPersona().getNombreCompleto(),
+                LocalDateTime.now());
     }
 }

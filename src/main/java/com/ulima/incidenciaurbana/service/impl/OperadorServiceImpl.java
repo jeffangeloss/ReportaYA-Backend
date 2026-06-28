@@ -1,8 +1,8 @@
 package com.ulima.incidenciaurbana.service.impl;
 
 import com.ulima.incidenciaurbana.dto.ReporteDTO;
-import com.ulima.incidenciaurbana.model.*;
-import com.ulima.incidenciaurbana.repository.CuentaRepository;
+import com.ulima.incidenciaurbana.model.EstadoReporte;
+import com.ulima.incidenciaurbana.repository.OperadorMunicipalRepository;
 import com.ulima.incidenciaurbana.service.IOperadorService;
 import com.ulima.incidenciaurbana.service.IReporteQueryService;
 import com.ulima.incidenciaurbana.service.IReporteService;
@@ -15,15 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class OperadorServiceImpl implements IOperadorService {
 
-    private final CuentaRepository cuentaRepository;
+    private final OperadorMunicipalRepository operadorRepository;
     private final IReporteService reporteService;
     private final IReporteQueryService queryService;
 
     @Autowired
-    public OperadorServiceImpl(CuentaRepository cuentaRepository,
+    public OperadorServiceImpl(OperadorMunicipalRepository operadorRepository,
             IReporteService reporteService,
             IReporteQueryService queryService) {
-        this.cuentaRepository = cuentaRepository;
+        this.operadorRepository = operadorRepository;
         this.reporteService = reporteService;
         this.queryService = queryService;
     }
@@ -59,10 +59,8 @@ public class OperadorServiceImpl implements IOperadorService {
 
     private void validarOperador(Long operadorId) {
         if (operadorId == null) throw new IllegalArgumentException("operadorId es requerido");
-        Cuenta operador = cuentaRepository.findById(operadorId)
-                .orElseThrow(() -> new RuntimeException("Operador no encontrado con id: " + operadorId));
-        if (!(operador instanceof OperadorMunicipal)) {
-            throw new RuntimeException("Solo operadores municipales pueden realizar esta accion");
+        if (!operadorRepository.existsById(operadorId)) {
+            throw new RuntimeException("Operador no encontrado con id: " + operadorId);
         }
     }
 }
