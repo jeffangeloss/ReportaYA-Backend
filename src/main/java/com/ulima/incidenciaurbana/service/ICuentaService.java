@@ -15,4 +15,17 @@ public interface ICuentaService {
      * @throws RuntimeException si hay errores de duplicación o validación
      */
     CuentaDTO crearCuenta(CuentaDTO cuentaDTO);
+
+    /**
+     * Verifica una cuenta a partir del token enviado por correo y la activa.
+     * @param token token de verificación recibido por correo
+     * @throws IllegalArgumentException si el token es inválido o expiró
+     */
+    void verificarCuenta(String token);
+
+    /**
+     * Reenvía el correo de verificación a una cuenta aún no activada.
+     * @param correo correo de la cuenta
+     */
+    void reenviarVerificacion(String correo);
 }

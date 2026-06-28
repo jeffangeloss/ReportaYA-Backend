@@ -30,7 +30,15 @@ SPRING_DATASOURCE_USERNAME=tu_usuario
 SPRING_DATASOURCE_PASSWORD=tu_password
 JWT_SECRET=un_string_de_al_menos_32_caracteres
 FIREBASE_STORAGE_BUCKET=tu-proyecto.firebasestorage.app
+RESEND_API_KEY=re_tu_api_key
+RESEND_FROM=ReportaYA <noreply@tu-dominio-verificado>
+APP_BASE_URL=http://localhost:8081
 ```
+
+> **Verificacion de correo (Resend):** al registrar un ciudadano se envia un
+> correo con un enlace de verificacion. La cuenta nace **inactiva** y no puede
+> iniciar sesion hasta confirmar el correo. Si `RESEND_API_KEY` esta vacio, el
+> enlace se imprime en consola (modo dev) y no se envia correo.
 
 3. (Opcional) Colocar `firebase-service-account.json` en `src/main/resources/` para habilitar Firebase Storage y notificaciones push. Sin este archivo, las fotos se guardan localmente y las notificaciones se simulan en consola.
 
@@ -63,7 +71,7 @@ Controller → Service → Repository → PostgreSQL
 
 Autenticacion via JWT con `HandlerInterceptor`:
 
-- **Rutas publicas** (sin token): `/api/auth/**`, `/api/cuenta`
+- **Rutas publicas** (sin token): `/api/auth/**`, `/api/cuenta`, `/api/cuenta/verificar`, `/api/cuenta/reenviar-verificacion`
 - **Rutas protegidas** (requieren `Authorization: Bearer <token>`): todo lo demas bajo `/api/**`
 
 El token se obtiene con `POST /api/auth/login` y tiene validez de 24 horas.
@@ -82,7 +90,9 @@ El token se obtiene con `POST /api/auth/login` y tiene validez de 24 horas.
 
 | Metodo | Ruta | Descripcion | CU |
 |---|---|---|---|
-| POST | `/api/cuenta` | Registrar ciudadano | CU-02 |
+| POST | `/api/cuenta` | Registrar ciudadano (queda inactivo + envia correo de verificacion) | CU-02 |
+| GET | `/api/cuenta/verificar?token=X` | Verificar correo y activar la cuenta (devuelve HTML) | CU-02 |
+| POST | `/api/cuenta/reenviar-verificacion` | Reenviar el correo de verificacion (`{"correo":"..."}`) | CU-02 |
 
 ### Reportes (`/api/reportes`) — Protegido
 
@@ -212,3 +222,4 @@ La carpeta `api-tests/` contiene archivos `.rest` para probar todos los endpoint
 | `04-operador.rest` | Aceptar/rechazar + asignar tecnico |
 | `05-tecnico.rest` | Reportes asignados + completar con fotos |
 | `06-sin-token.rest` | Verificar seguridad JWT |
+| `07-verificacion-correo.rest` | Registro + verificacion de correo (Resend) + login |

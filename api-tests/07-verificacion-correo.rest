@@ -1,0 +1,63 @@
+### ==========================================
+### Verificacion de correo con Resend
+### Flujo: registrar -> (correo) -> verificar -> login
+### Endpoints publicos (sin token JWT)
+### ==========================================
+###
+### ⚠️  ANTES DE PROBAR — cambia estos 3 campos por valores UNICOS no registrados
+###     (son columnas UNIQUE en la BD, si repites uno da error "ya registrado"):
+###       - "correo"  -> tu correo real (ahi llega el enlace de verificacion)
+###       - "usuario" -> un usuario nuevo
+###       - "dni"     -> 8 digitos nuevos
+###
+### Cada integrante del equipo puede poner su propio correo para recibir el suyo.
+### ==========================================
+
+### 1) Registrar ciudadano
+###    La cuenta nace INACTIVA (activo=false) y se envia un correo de
+###    verificacion al correo indicado via Resend.
+POST http://localhost:8081/api/cuenta
+Content-Type: application/json
+
+{
+  "tipoCuenta": "CIUDADANO",
+  "usuario": "demo.reportaya",
+  "contrasena": "123456",
+  "nombres": "Demo",
+  "apellidos": "ReportaYA",
+  "dni": "10000001",
+  "telefono": "999888777",
+  "correo": "jjjangelosss@gmail.com",
+  "activo": true
+}
+
+### 2) Login ANTES de verificar -> 403 "Debes verificar tu correo antes de iniciar sesion"
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "demo.reportaya",
+  "password": "123456"
+}
+
+### 3) Verificar la cuenta
+###    Pega el token que llega en el correo (o el que aparece en consola si
+###    RESEND_API_KEY esta vacio). Devuelve una pagina HTML de confirmacion.
+GET http://localhost:8081/api/cuenta/verificar?token=PEGA_AQUI_EL_TOKEN
+
+### 4) Login DESPUES de verificar -> 200 con JWT
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "demo.reportaya",
+  "password": "123456"
+}
+
+### 5) Reenviar verificacion (si el enlace expiro). Responde 200 generico siempre.
+POST http://localhost:8081/api/cuenta/reenviar-verificacion
+Content-Type: application/json
+
+{
+  "correo": "jjjangelosss@gmail.com"
+}

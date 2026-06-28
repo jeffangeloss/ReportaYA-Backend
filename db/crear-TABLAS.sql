@@ -28,8 +28,15 @@ CREATE TABLE IF NOT EXISTS cuentas (
   fecha_creacion TIMESTAMP WITHOUT TIME ZONE,
   fecha_actualizacion TIMESTAMP WITHOUT TIME ZONE,
   activo BOOLEAN NOT NULL DEFAULT TRUE,
+  token_verificacion VARCHAR(255),
+  token_expiracion TIMESTAMP WITHOUT TIME ZONE,
   CONSTRAINT fk_cuentas_persona FOREIGN KEY (persona_id) REFERENCES personas (id) ON DELETE RESTRICT
 );
+
+-- Migracion para bases de datos ya creadas (verificacion de correo via Resend).
+-- Hibernate (ddl-auto=update) tambien agrega estas columnas al iniciar la app.
+ALTER TABLE cuentas ADD COLUMN IF NOT EXISTS token_verificacion VARCHAR(255);
+ALTER TABLE cuentas ADD COLUMN IF NOT EXISTS token_expiracion TIMESTAMP WITHOUT TIME ZONE;
 
 -- 3) Subclases de Cuenta (JOINED)
 CREATE TABLE IF NOT EXISTS operadores_municipales (
@@ -116,6 +123,7 @@ CREATE INDEX IF NOT EXISTS idx_fotos_reporte_id ON fotos (reporte_id);
 CREATE INDEX IF NOT EXISTS idx_historial_reporte_id ON historial_estados (reporte_id);
 CREATE INDEX IF NOT EXISTS idx_historial_fecha_cambio ON historial_estados (fecha_cambio DESC);
 CREATE INDEX IF NOT EXISTS idx_token_cuenta_id ON token_notificaciones (cuenta_id);
+CREATE INDEX IF NOT EXISTS idx_cuentas_token_verificacion ON cuentas (token_verificacion);
 
 -- ============================================
 -- SCRIPTS DE LIMPIEZA (usar con precaucion)

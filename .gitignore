@@ -46,6 +46,9 @@ build/
 ### VS Code ###
 .vscode/
 
+# Claude Code (worktrees y archivos locales del agente)
+.claude/
+
 .db/
 .doc/
 

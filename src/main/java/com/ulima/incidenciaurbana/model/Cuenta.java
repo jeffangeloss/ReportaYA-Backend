@@ -37,6 +37,12 @@ public abstract class Cuenta {
     @Column(nullable = false)
     private boolean activo;
 
+    @Column(name = "token_verificacion")
+    private String tokenVerificacion;
+
+    @Column(name = "token_expiracion")
+    private LocalDateTime tokenExpiracion;
+
     // Constructors
     public Cuenta() {
         this.fechaCreacion = LocalDateTime.now();
@@ -130,6 +136,46 @@ public abstract class Cuenta {
 
     public void setActivo(boolean activo) {
         this.activo = activo;
+    }
+
+    public String getTokenVerificacion() {
+        return tokenVerificacion;
+    }
+
+    public void setTokenVerificacion(String tokenVerificacion) {
+        this.tokenVerificacion = tokenVerificacion;
+    }
+
+    public LocalDateTime getTokenExpiracion() {
+        return tokenExpiracion;
+    }
+
+    public void setTokenExpiracion(LocalDateTime tokenExpiracion) {
+        this.tokenExpiracion = tokenExpiracion;
+    }
+
+    /**
+     * Asigna un token de verificación de correo con su fecha de expiración.
+     */
+    public void asignarTokenVerificacion(String token, LocalDateTime expiracion) {
+        this.tokenVerificacion = token;
+        this.tokenExpiracion = expiracion;
+    }
+
+    /**
+     * Indica si el token de verificación ya expiró (o no existe).
+     */
+    public boolean tokenVerificacionExpirado() {
+        return tokenExpiracion == null || tokenExpiracion.isBefore(LocalDateTime.now());
+    }
+
+    /**
+     * Activa la cuenta tras verificar el correo y limpia el token.
+     */
+    public void confirmarVerificacion() {
+        this.activo = true;
+        this.tokenVerificacion = null;
+        this.tokenExpiracion = null;
     }
 
     /**

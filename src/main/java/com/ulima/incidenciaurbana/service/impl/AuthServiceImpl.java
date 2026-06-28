@@ -2,6 +2,7 @@ package com.ulima.incidenciaurbana.service.impl;
 
 import com.ulima.incidenciaurbana.dto.LoginRequest;
 import com.ulima.incidenciaurbana.dto.LoginResponse;
+import com.ulima.incidenciaurbana.exception.EmailNotVerifiedException;
 import com.ulima.incidenciaurbana.exception.InvalidCredentialsException;
 import com.ulima.incidenciaurbana.model.Cuenta;
 import com.ulima.incidenciaurbana.repository.CuentaRepository;
@@ -29,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        Cuenta c = cuentaRepository.findByUsuarioAndActivoTrue(request.getUsuario())
+        Cuenta c = cuentaRepository.findByUsuario(request.getUsuario())
                 .orElseThrow(InvalidCredentialsException::new);
 
         String stored = c.getContrasenaHash();
@@ -44,6 +45,12 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!valid) throw new InvalidCredentialsException();
+
+        // Credenciales correctas pero la cuenta aún no verificó su correo.
+        // Se comprueba DESPUÉS del password para no revelar cuentas por el usuario.
+        if (!c.isActivo()) {
+            throw new EmailNotVerifiedException();
+        }
 
         if (needsMigration) {
             c.setContrasenaHash(passwordEncoder.encode(request.getPassword()));
