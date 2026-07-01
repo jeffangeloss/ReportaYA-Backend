@@ -33,7 +33,7 @@ SPRING_DATASOURCE_PASSWORD=tu_password
 JWT_SECRET=un_string_de_al_menos_32_caracteres
 FIREBASE_STORAGE_BUCKET=tu-proyecto.firebasestorage.app
 RESEND_API_KEY=re_tu_api_key
-RESEND_FROM=ReportaYA <noreply@tu-dominio-verificado>
+RESEND_FROM=ReportaYA <noreply@mail.grupo5app.lat>
 APP_BASE_URL=http://localhost:8081
 APP_PASSWORD_RESET_URL=reportaya://reset-password
 ```
@@ -47,6 +47,11 @@ APP_PASSWORD_RESET_URL=reportaya://reset-password
 > genera un token temporal y envia un enlace al correo. `APP_PASSWORD_RESET_URL`
 > debe apuntar a la pantalla del front/mobile que recibe `token` y `correo`
 > por query params.
+>
+> **Produccion:** usa un remitente del dominio verificado en Resend, por ejemplo
+> `ReportaYA <noreply@mail.grupo5app.lat>`, y configura `APP_BASE_URL` con el
+> dominio publico real. Evita enviar enlaces a `localhost`, previews temporales,
+> IPs directas o dominios que no coincidan con el proyecto.
 
 3. (Opcional) Colocar `firebase-service-account.json` en `src/main/resources/` para habilitar Firebase Storage y notificaciones push. Sin este archivo, las fotos se guardan localmente y las notificaciones se simulan en consola.
 
@@ -176,9 +181,10 @@ hasta confirmar el correo. El envio del enlace se hace con [Resend](https://rese
 - **Token:** UUID con validez de 24 h, guardado en `cuentas.token_verificacion`; se limpia al verificar.
 - **Reenvio:** `POST /api/cuenta/reenviar-verificacion` con `{"correo":"..."}`. Responde siempre 200 generico (no revela si el correo existe ni su estado).
 - **Config** (en `application-local.properties`): `RESEND_API_KEY`, `RESEND_FROM` (remitente de un dominio verificado en Resend) y `APP_BASE_URL` (base del enlace). Si `RESEND_API_KEY` esta vacio, el enlace se imprime en consola (modo dev) y no se envia correo.
+- **Entregabilidad:** el correo se envia con version `html` y `text`. En produccion, evita que `APP_BASE_URL` apunte a `localhost` o a dominios temporales para reducir riesgo de spam.
 - El registro publico solo crea cuentas de tipo `CIUDADANO`.
 
-Probar el flujo completo con `api-tests/07-verificacion-correo.rest`.
+Probar el flujo de registro y verificacion con `api-tests/02-registro.rest`.
 
 ## Recuperacion de contrasena por correo (Resend)
 
@@ -214,8 +220,18 @@ Payload para cambiar la contrasena:
 - **Enlace:** se construye con `APP_PASSWORD_RESET_URL` y el backend agrega `token` y `correo` como query params.
 - **Modo dev:** si `RESEND_API_KEY` esta vacio, el enlace se imprime en consola.
 - **Validacion backend:** la nueva contrasena debe tener al menos 6 caracteres.
+- **Entregabilidad:** el correo se envia con version `html` y `text`. Para mobile, usa un deep link estable o un dominio publico propio, no URLs temporales.
 
-Probar el flujo completo con `api-tests/08-recuperacion-password.rest`.
+Probar el flujo de login y recuperacion con `api-tests/01-auth.rest`.
+
+## Checklist rapido para evitar spam
+
+- Usar siempre el mismo remitente verificado: `ReportaYA <noreply@mail.grupo5app.lat>`.
+- Mantener configurados SPF, DKIM y DMARC del subdominio de envio.
+- Usar enlaces publicos y estables, idealmente del mismo proyecto/dominio.
+- Mantener el contenido simple: asunto claro, poco HTML, sin palabras promocionales.
+- Evitar muchas pruebas repetidas al mismo correo durante la demo.
+- No compartir capturas donde se vea una API key completa.
 
 ## Flujo de estados
 
@@ -280,11 +296,9 @@ La carpeta `api-tests/` contiene archivos `.rest` para probar todos los endpoint
 
 | Archivo | Que prueba |
 |---|---|
-| `01-auth.rest` | Login de los 3 roles |
-| `02-registro.rest` | Registro de ciudadano |
+| `01-auth.rest` | Login + recuperacion de contrasena |
+| `02-registro.rest` | Registro + verificacion de correo (Resend) |
 | `03-reportes-ciudadano.rest` | Crear reporte + subir fotos + consultas |
 | `04-operador.rest` | Aceptar/rechazar + asignar tecnico |
 | `05-tecnico.rest` | Reportes asignados + completar con fotos |
 | `06-sin-token.rest` | Verificar seguridad JWT |
-| `07-verificacion-correo.rest` | Registro + verificacion de correo (Resend) + login |
-| `08-recuperacion-password.rest` | Recuperacion de contrasena por correo (Resend) |
