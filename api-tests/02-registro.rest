@@ -1,22 +1,48 @@
 ### ==========================================
 ### CU-02: Registro de ciudadano
 ### ==========================================
+###
+### ANTES DE PROBAR:
+### Cambia estos 3 campos por valores UNICOS no registrados:
+### - "correo"  -> correo real donde llegara el enlace
+### - "usuario" -> usuario nuevo
+### - "dni"     -> 8 digitos nuevos
+### ==========================================
+
+### 1) Registrar ciudadano
+###    La cuenta nace INACTIVA (activo=false), aunque el JSON mande activo=true.
+###    El backend envia un correo de verificacion via Resend.
 POST http://localhost:8081/api/cuenta
 Content-Type: application/json
 
 {
   "tipoCuenta": "CIUDADANO",
-  "usuario": "admin",
+  "usuario": "demo.reportaya",
   "contrasena": "123456",
-  "nombres": "Pedro",
-  "apellidos": "Gomez",
-  "dni": "99887766",
-  "telefono": "911222333",
-  "correo": "pedro.gomez@mail.com",
+  "nombres": "Demo",
+  "apellidos": "ReportaYA",
+  "dni": "76951617",
+  "telefono": "999888777",
+  "correo": "tu-correo@gmail.com",
   "activo": true
 }
 
-### Registro - Usuario duplicado (debe fallar)
+### 2) Verificar la cuenta
+###    Pega el token que llega en el correo.
+###    Devuelve una pagina HTML de confirmacion.
+GET http://localhost:8081/api/cuenta/verificar?token=PEGA_AQUI_EL_TOKEN_DE_VERIFICACION
+
+### 3) Reenviar verificacion (opcional)
+###    Usalo si el enlace expiro o si necesitas generar otro correo.
+###    Responde 200 generico para no revelar si el correo existe.
+POST http://localhost:8081/api/cuenta/reenviar-verificacion
+Content-Type: application/json
+
+{
+  "correo": "tu-correo@gmail.com"
+}
+
+### Registro - Usuario/correo/dni duplicado (debe fallar si ya existen)
 POST http://localhost:8081/api/cuenta
 Content-Type: application/json
 

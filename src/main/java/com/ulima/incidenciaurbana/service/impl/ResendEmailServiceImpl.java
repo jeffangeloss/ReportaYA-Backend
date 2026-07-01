@@ -59,6 +59,7 @@ public class ResendEmailServiceImpl implements IEmailService {
                 correo,
                 "Verifica tu cuenta de ReportaYA",
                 construirHtmlVerificacion(nombre, enlace),
+                construirTextoVerificacion(nombre, enlace),
                 enlace,
                 "verificacion");
     }
@@ -74,11 +75,12 @@ public class ResendEmailServiceImpl implements IEmailService {
                 correo,
                 "Restablece tu contraseña de ReportaYA",
                 construirHtmlRecuperacion(nombre, enlace),
+                construirTextoRecuperacion(nombre, enlace),
                 enlace,
                 "recuperacion de contrasena");
     }
 
-    private void enviarCorreo(String correo, String subject, String html, String enlace, String tipo) {
+    private void enviarCorreo(String correo, String subject, String html, String text, String enlace, String tipo) {
         if (apiKey == null || apiKey.isBlank()) {
             log.warn("[Resend] RESEND_API_KEY no configurada. Enlace de {} para {}: {}",
                     tipo, correo, enlace);
@@ -89,7 +91,8 @@ public class ResendEmailServiceImpl implements IEmailService {
                 "from", from,
                 "to", List.of(correo),
                 "subject", subject,
-                "html", html);
+                "html", html,
+                "text", text);
 
         try {
             restClient.post()
@@ -132,6 +135,7 @@ public class ResendEmailServiceImpl implements IEmailService {
     private String construirHtmlVerificacion(String nombre, String enlace) {
         // Escapamos el nombre (dato del usuario) para evitar inyección de HTML en el correo.
         String saludo = (nombre != null && !nombre.isBlank()) ? HtmlUtils.htmlEscape(nombre) : "";
+        String enlaceHtml = HtmlUtils.htmlEscape(enlace);
         return """
                 <div style="font-family: system-ui, sans-serif; max-width:480px; margin:0 auto; padding:24px; color:#18181b;">
                   <h2 style="color:#7c3aed;">ReportaYA</h2>
@@ -143,11 +147,12 @@ public class ResendEmailServiceImpl implements IEmailService {
                   <p style="font-size:13px; color:#71717a;">Si el boton no funciona, copia y pega este enlace en tu navegador:<br>%s</p>
                   <p style="font-size:13px; color:#71717a;">Este enlace caduca en 24 horas. Si no creaste esta cuenta, ignora este correo.</p>
                 </div>
-                """.formatted(saludo, enlace, enlace);
+                """.formatted(saludo, enlaceHtml, enlaceHtml);
     }
 
     private String construirHtmlRecuperacion(String nombre, String enlace) {
         String saludo = (nombre != null && !nombre.isBlank()) ? HtmlUtils.htmlEscape(nombre) : "";
+        String enlaceHtml = HtmlUtils.htmlEscape(enlace);
         return """
                 <div style="font-family: system-ui, sans-serif; max-width:480px; margin:0 auto; padding:24px; color:#18181b;">
                   <h2 style="color:#7c3aed;">ReportaYA</h2>
@@ -159,6 +164,39 @@ public class ResendEmailServiceImpl implements IEmailService {
                   <p style="font-size:13px; color:#71717a;">Si el boton no funciona, copia y pega este enlace en tu navegador:<br>%s</p>
                   <p style="font-size:13px; color:#71717a;">Este enlace caduca en 30 minutos. Si no solicitaste este cambio, ignora este correo.</p>
                 </div>
-                """.formatted(saludo, enlace, enlace);
+                """.formatted(saludo, enlaceHtml, enlaceHtml);
+    }
+
+    private String construirTextoVerificacion(String nombre, String enlace) {
+        String saludo = construirSaludoTexto(nombre);
+        return """
+                Hola%s,
+
+                Para completar tu registro en ReportaYA, verifica tu cuenta aqui:
+                %s
+
+                Este enlace caduca en 24 horas. Si no creaste esta cuenta, ignora este correo.
+
+                Equipo de ReportaYA
+                """.formatted(saludo, enlace);
+    }
+
+    private String construirTextoRecuperacion(String nombre, String enlace) {
+        String saludo = construirSaludoTexto(nombre);
+        return """
+                Hola%s,
+
+                Recibimos una solicitud para restablecer tu contrasena de ReportaYA.
+                Puedes crear una nueva contrasena aqui:
+                %s
+
+                Este enlace caduca en 30 minutos. Si no solicitaste este cambio, ignora este correo.
+
+                Equipo de ReportaYA
+                """.formatted(saludo, enlace);
+    }
+
+    private String construirSaludoTexto(String nombre) {
+        return (nombre != null && !nombre.isBlank()) ? " " + nombre.trim() : "";
     }
 }

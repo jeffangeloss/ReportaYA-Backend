@@ -1,6 +1,8 @@
 ### ==========================================
-### CU-01: Login - Ciudadano
+### CU-01: Login
 ### ==========================================
+
+### Login - Ciudadano
 POST http://localhost:8081/api/auth/login
 Content-Type: application/json
 
@@ -42,5 +44,39 @@ Content-Type: application/json
 
 {
   "usuario": "noexiste",
+  "password": "123456"
+}
+
+### ==========================================
+### CU-03: Recuperacion de contrasena con Resend
+### Flujo: pedir enlace -> correo -> restablecer -> login
+### ==========================================
+
+### 1) Solicitar enlace de recuperacion
+###    Usa el correo de una cuenta activa/verificada.
+###    Si RESEND_API_KEY esta vacio, el enlace aparece en consola.
+POST http://localhost:8081/api/auth/recuperar-password
+Content-Type: application/json
+
+{
+  "correo": "ana.quispe@mail.com"
+}
+
+### 2) Restablecer contrasena
+###    Copia aqui el token que llega en el enlace del correo.
+POST http://localhost:8081/api/auth/restablecer-password
+Content-Type: application/json
+
+{
+  "token": "PEGA_AQUI_EL_TOKEN_DE_RECUPERACION",
+  "nuevaContrasena": "123456"
+}
+
+### 3) Login con la nueva contrasena
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+  "usuario": "ciudadano",
   "password": "123456"
 }
