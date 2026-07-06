@@ -77,7 +77,8 @@ public class ReporteServiceImpl implements IReporteService {
 
     @Override
     public ReporteDTO actualizarReporte(Long id, ReporteDTO reporteDTO) {
-        if (id == null) throw new RuntimeException("El ID del reporte es obligatorio");
+        if (id == null)
+            throw new RuntimeException("El ID del reporte es obligatorio");
         Reporte reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
 
@@ -105,12 +106,14 @@ public class ReporteServiceImpl implements IReporteService {
 
     @Override
     public ReporteDTO cambiarEstadoReporte(Long id, EstadoReporte nuevoEstado) {
-        if (id == null) throw new RuntimeException("El ID del reporte es obligatorio");
+        if (id == null)
+            throw new RuntimeException("El ID del reporte es obligatorio");
         Reporte reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
 
         EstadoReporte estadoAnterior = reporte.getEstado();
-        if (estadoAnterior == nuevoEstado) return queryService.convertirADTO(reporte);
+        if (estadoAnterior == nuevoEstado)
+            return queryService.convertirADTO(reporte);
 
         reporte.cambiarEstado(nuevoEstado);
         reporte = reporteRepository.save(reporte);
@@ -125,13 +128,15 @@ public class ReporteServiceImpl implements IReporteService {
 
     @Override
     public ReporteDTO rechazarReporte(Long id, String motivo) {
-        if (id == null) throw new RuntimeException("El ID del reporte es obligatorio");
+        if (id == null)
+            throw new RuntimeException("El ID del reporte es obligatorio");
         Reporte reporte = reporteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + id));
 
         EstadoReporte estadoAnterior = reporte.getEstado();
-        if (estadoAnterior == EstadoReporte.RECHAZADO) return queryService.convertirADTO(reporte);
 
+        if (estadoAnterior == EstadoReporte.RECHAZADO)
+            return queryService.convertirADTO(reporte);
         reporte.cambiarEstado(EstadoReporte.RECHAZADO);
         reporte.setComentarioResolucion(motivo);
         reporte.setFechaCierre(java.time.LocalDateTime.now());
@@ -152,7 +157,8 @@ public class ReporteServiceImpl implements IReporteService {
 
         if (reporte.getEstado() != EstadoReporte.REVISION) {
             throw new RuntimeException(
-                    "El reporte debe estar en estado REVISION para asignar tecnico. Estado actual: " + reporte.getEstado());
+                    "El reporte debe estar en estado REVISION para asignar tecnico. Estado actual: "
+                            + reporte.getEstado());
         }
 
         Tecnico tecnico = tecnicoRepository.findById(tecnicoId)
@@ -170,7 +176,8 @@ public class ReporteServiceImpl implements IReporteService {
 
     @Override
     public void eliminarReporte(Long id) {
-        if (id == null) throw new RuntimeException("El ID del reporte es obligatorio");
+        if (id == null)
+            throw new RuntimeException("El ID del reporte es obligatorio");
         if (!reporteRepository.existsById(id))
             throw new RuntimeException("Reporte no encontrado con id: " + id);
         reporteRepository.deleteById(id);

@@ -1,6 +1,7 @@
 package com.ulima.incidenciaurbana.service;
 
 import com.ulima.incidenciaurbana.dto.ReporteDTO;
+import com.ulima.incidenciaurbana.dto.ReporteMapaDTO;
 import com.ulima.incidenciaurbana.model.EstadoReporte;
 import com.ulima.incidenciaurbana.model.TipoProblema;
 import org.springframework.data.domain.Page;
@@ -15,5 +16,5 @@ public interface IReporteQueryService {
 
     Page<ReporteDTO> obtenerReportesPorCuenta(Long cuentaId, int page);
 
-    List<ReporteDTO> obtenerReportesMapa(EstadoReporte estado, TipoProblema tipo);
+    List<ReporteMapaDTO> obtenerReportesMapa(EstadoReporte estado, TipoProblema tipo);
 }

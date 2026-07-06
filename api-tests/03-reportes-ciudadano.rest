@@ -4,7 +4,7 @@
 ### ==========================================
 ### INSTRUCCION: Primero ejecuta el login de ciudadano en 01-auth.rest
 ### y copia el token de la respuesta aqui abajo:
-@token = 
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwidXN1YXJpbyI6ImNpdWRhZGFubyIsInRpcG9DdWVudGEiOiJDSVVEQURBTk8iLCJpYXQiOjE3ODMwODIzMjksImV4cCI6MTc4MzE2ODcyOX0.BrPGqkZ-sM4CdwsHx1dFQtEmK3AV7f_Cx5FoAxviNEjDUtDHNN7KGxGrQn6UN2XPAXGU6PU-6fjfNw6wZ8ovBw
 ### ==========================================
 ### PASO 1: Crear reporte (sin fotos)
 ### ==========================================
@@ -68,11 +68,11 @@ GET http://localhost:8081/api/reportes/cuenta/1?page=0
 Authorization: Bearer {{token}}
 
 ### Obtener detalle de un reporte (incluye fotos dentro)
-GET http://localhost:8081/api/reportes/1042
+GET http://localhost:8081/api/reportes/1043
 Authorization: Bearer {{token}}
 
-### Obtener reportes para el mapa
-GET http://localhost:8081/api/reportes/mapa
+### Obtener reportes para el mapa .duda de este
+GET http://localhost:8081/api/reportes/mapa 
 Authorization: Bearer {{token}}
 
 ### Mapa filtrado por estado y tipo

@@ -2,6 +2,7 @@ package com.ulima.incidenciaurbana.service.impl;
 
 import com.ulima.incidenciaurbana.dto.FotoDTO;
 import com.ulima.incidenciaurbana.dto.ReporteDTO;
+import com.ulima.incidenciaurbana.dto.ReporteMapaDTO;
 import com.ulima.incidenciaurbana.dto.UbicacionDTO;
 import com.ulima.incidenciaurbana.model.*;
 import com.ulima.incidenciaurbana.repository.ReporteRepository;
@@ -58,10 +59,29 @@ public class ReporteQueryServiceImpl implements IReporteQueryService {
     }
 
     @Override
-    public List<ReporteDTO> obtenerReportesMapa(EstadoReporte estado, TipoProblema tipo) {
+    public List<ReporteMapaDTO> obtenerReportesMapa(EstadoReporte estado, TipoProblema tipo) {
         return reporteRepository.findAll(ReporteSpecification.filtrarParaMapa(estado, tipo)).stream()
-                .map(this::convertirADTO)
+                .map(this::convertirAMapaDTO)
                 .collect(Collectors.toList());
+    }
+
+    private ReporteMapaDTO convertirAMapaDTO(Reporte reporte) {
+        UbicacionDTO ubicacion = null;
+        if (reporte.getUbicacion() != null) {
+            ubicacion = new UbicacionDTO(
+                    reporte.getUbicacion().getId(),
+                    reporte.getUbicacion().getLatitud(),
+                    reporte.getUbicacion().getLongitud(),
+                    reporte.getUbicacion().getDireccion(),
+                    reporte.getUbicacion().getFechaRegistro());
+        }
+
+        return new ReporteMapaDTO(
+                reporte.getId(),
+                reporte.getTitulo(),
+                reporte.getEstado(),
+                reporte.getTipoProblema(),
+                ubicacion);
     }
 
     ReporteDTO convertirADTO(Reporte reporte) {

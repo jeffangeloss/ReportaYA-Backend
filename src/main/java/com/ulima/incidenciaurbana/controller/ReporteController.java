@@ -24,7 +24,8 @@ public class ReporteController {
     private final IFotoService fotoService;
 
     @Autowired
-    public ReporteController(IReporteService reporteService, IReporteQueryService queryService, IFotoService fotoService) {
+    public ReporteController(IReporteService reporteService, IReporteQueryService queryService,
+            IFotoService fotoService) {
         this.reporteService = reporteService;
         this.queryService = queryService;
         this.fotoService = fotoService;
@@ -100,8 +101,7 @@ public class ReporteController {
     }
 
     @PostMapping("/{id}/fotos")
-    public ResponseEntity<?> subirFoto(
-            @PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> subirFoto(@PathVariable Long id, @RequestBody Map<String, String> body) {
         try {
             String archivoBase64 = body.get("archivoBase64");
             String tipoStr = body.getOrDefault("tipo", "INICIAL");

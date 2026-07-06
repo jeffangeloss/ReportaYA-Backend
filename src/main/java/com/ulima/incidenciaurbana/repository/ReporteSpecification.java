@@ -16,8 +16,10 @@ public class ReporteSpecification {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (estado != null) predicates.add(cb.equal(root.get("estado"), estado));
-            if (tipo != null) predicates.add(cb.equal(root.get("tipoProblema"), tipo));
+            if (estado != null)
+                predicates.add(cb.equal(root.get("estado"), estado));
+            if (tipo != null)
+                predicates.add(cb.equal(root.get("tipoProblema"), tipo));
 
             root.fetch("ubicacion", JoinType.LEFT);
             root.fetch("cuenta", JoinType.LEFT);
