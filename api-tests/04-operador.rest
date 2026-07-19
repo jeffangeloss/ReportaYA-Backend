@@ -4,7 +4,7 @@
 ### ==========================================
 ### INSTRUCCION: Primero ejecuta el login de operador (op.maria) en 01-auth.rest
 ### y copia el token aqui:
-@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwidXN1YXJpbyI6ImNpdWRhZGFubyIsInRpcG9DdWVudGEiOiJDSVVEQURBTk8iLCJpYXQiOjE3ODI4Nzg5MzcsImV4cCI6MTc4Mjk2NTMzN30.Qm4euwJvxqegNuvSkUg2Mg7Ep0eElhz9IdGEat3n5u-KrnlUEg79vbs0xO8ohE8L8I6IVg5BLCrH0LioVRoNvw
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIzIiwidXN1YXJpbyI6Im9wLm1hcmlhIiwidGlwb0N1ZW50YSI6Ik9QRVJBRE9SX01VTklDSVBBTCIsImlhdCI6MTc4MzA4MzQ5MywiZXhwIjoxNzgzMTY5ODkzfQ.TZsFLKqsc-Baz4zb8ck608HUAvqbBBtzLns41OCwd9AyVlmYEouVyp2Lb1HZDS-8_w4uUCqlk_2saVPwI-g1Kg
 
 ### Obtener reportes PENDIENTES (cola del operador)
 GET http://localhost:8081/api/operador/reportes?estado=PENDIENTE&page=0

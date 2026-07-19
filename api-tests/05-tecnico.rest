@@ -3,7 +3,7 @@
 ### ==========================================
 ### INSTRUCCION: Primero ejecuta el login de tecnico (tec.carlos) en 01-auth.rest
 ### y copia el token aqui:
-@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI0IiwidXN1YXJpbyI6InRlYy5jYXJsb3MiLCJ0aXBvQ3VlbnRhIjoiVEVDTklDTyIsImlhdCI6MTc4MzA1MDEwMSwiZXhwIjoxNzgzMTM2NTAxfQ.0tMuM5_7K9MeJECzYJdgQ7vLD2ZyvKuGfXcVr5-m7wQlVbIqnz6V-XS_MNXcq9O2exD_RcLCBuRmtRKIMDHuqQ
+@token = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI0IiwidXN1YXJpbyI6InRlYy5jYXJsb3MiLCJ0aXBvQ3VlbnRhIjoiVEVDTklDTyIsImlhdCI6MTc4MzA4MzMwMywiZXhwIjoxNzgzMTY5NzAzfQ.amkuGKU98_3b7oy4SxULAmi-Rko2X3bqdUj10B6BCjoo1q2ZkTUIUdLJ_VU6BuMsUV3LxIMMothtLBRFbb_K_w
 
 ### Obtener todos los técnicos (paginado)
 GET http://localhost:8081/api/tecnicos?page=0
