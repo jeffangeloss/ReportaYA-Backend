@@ -4,6 +4,7 @@ import com.ulima.incidenciaurbana.service.IEmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -53,6 +54,7 @@ public class ResendEmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void enviarVerificacion(String correo, String nombre, String token) {
         String enlace = baseUrl + "/api/cuenta/verificar?token=" + token;
         enviarCorreo(
@@ -65,18 +67,18 @@ public class ResendEmailServiceImpl implements IEmailService {
     }
 
     @Override
+    @Async
     public void enviarRecuperacionContrasena(String correo, String nombre, String token) {
-        String urlBase = (passwordResetUrl != null && !passwordResetUrl.isBlank())
-                ? passwordResetUrl
-                : baseUrl + "/reset-password";
-        String enlace = construirEnlaceRecuperacion(urlBase, token, correo);
-
+        // Opcion B: "token" es un codigo corto que el usuario ingresa en la app.
+        // No se envia enlace (no hay deep link configurado); el codigo va en el correo.
+        // Fallback de demo: dejamos el codigo en el log por si el correo no llega.
+        log.info("[DEV] Codigo de recuperacion para {}: {}", correo, token);
         enviarCorreo(
                 correo,
-                "Restablece tu contraseña de ReportaYA",
-                construirHtmlRecuperacion(nombre, enlace),
-                construirTextoRecuperacion(nombre, enlace),
-                enlace,
+                "Tu codigo para restablecer la contrasena de ReportaYA",
+                construirHtmlRecuperacion(nombre, token),
+                construirTextoRecuperacion(nombre, token),
+                token,
                 "recuperacion de contrasena");
     }
 
@@ -150,21 +152,20 @@ public class ResendEmailServiceImpl implements IEmailService {
                 """.formatted(saludo, enlaceHtml, enlaceHtml);
     }
 
-    private String construirHtmlRecuperacion(String nombre, String enlace) {
+    private String construirHtmlRecuperacion(String nombre, String codigo) {
         String saludo = (nombre != null && !nombre.isBlank()) ? HtmlUtils.htmlEscape(nombre) : "";
-        String enlaceHtml = HtmlUtils.htmlEscape(enlace);
+        String codigoHtml = HtmlUtils.htmlEscape(codigo);
         return """
                 <div style="font-family: system-ui, sans-serif; max-width:480px; margin:0 auto; padding:24px; color:#18181b;">
                   <h2 style="color:#7c3aed;">ReportaYA</h2>
                   <p>Hola %s, recibimos una solicitud para restablecer tu contraseña.</p>
-                  <p>Haz clic en el siguiente boton para crear una nueva contraseña:</p>
+                  <p>Ingresa este código en la app para crear tu nueva contraseña:</p>
                   <p style="text-align:center; margin:32px 0;">
-                    <a href="%s" style="background:#7c3aed; color:#fff; padding:12px 28px; border-radius:8px; text-decoration:none; font-weight:600;">Restablecer contraseña</a>
+                    <span style="display:inline-block; background:#f4f4f5; color:#7c3aed; font-size:32px; font-weight:700; letter-spacing:8px; padding:16px 28px; border-radius:12px; font-family:monospace;">%s</span>
                   </p>
-                  <p style="font-size:13px; color:#71717a;">Si el boton no funciona, copia y pega este enlace en tu navegador:<br>%s</p>
-                  <p style="font-size:13px; color:#71717a;">Este enlace caduca en 30 minutos. Si no solicitaste este cambio, ignora este correo.</p>
+                  <p style="font-size:13px; color:#71717a;">Este código caduca en 30 minutos. Si no solicitaste este cambio, ignora este correo.</p>
                 </div>
-                """.formatted(saludo, enlaceHtml, enlaceHtml);
+                """.formatted(saludo, codigoHtml);
     }
 
     private String construirTextoVerificacion(String nombre, String enlace) {
@@ -181,19 +182,20 @@ public class ResendEmailServiceImpl implements IEmailService {
                 """.formatted(saludo, enlace);
     }
 
-    private String construirTextoRecuperacion(String nombre, String enlace) {
+    private String construirTextoRecuperacion(String nombre, String codigo) {
         String saludo = construirSaludoTexto(nombre);
         return """
                 Hola%s,
 
                 Recibimos una solicitud para restablecer tu contrasena de ReportaYA.
-                Puedes crear una nueva contrasena aqui:
+                Ingresa este codigo en la app para crear tu nueva contrasena:
+
                 %s
 
-                Este enlace caduca en 30 minutos. Si no solicitaste este cambio, ignora este correo.
+                Este codigo caduca en 30 minutos. Si no solicitaste este cambio, ignora este correo.
 
                 Equipo de ReportaYA
-                """.formatted(saludo, enlace);
+                """.formatted(saludo, codigo);
     }
 
     private String construirSaludoTexto(String nombre) {

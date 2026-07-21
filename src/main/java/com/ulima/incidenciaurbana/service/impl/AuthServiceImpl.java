@@ -13,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -20,6 +21,11 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private static final int MINUTOS_VALIDEZ_RECUPERACION = 30;
+    // Codigo corto de recuperacion (Opcion B): el usuario lo escribe en la app.
+    // Alfabeto sin caracteres ambiguos (0/O, 1/I/L) para que sea facil de leer.
+    private static final String ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    private static final int LONGITUD_CODIGO = 6;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final CuentaRepository cuentaRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -81,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         Cuenta cuenta = cuentaRepository.findByCorreoAndActivoTrue(correo.trim())
                 .orElseThrow(() -> new RuntimeException("El correo no esta asociado a ninguna cuenta"));
 
-        String token = UUID.randomUUID().toString();
+        String token = generarCodigoRecuperacion();
         cuenta.asignarTokenRecuperacion(token, LocalDateTime.now().plusMinutes(MINUTOS_VALIDEZ_RECUPERACION));
         cuentaRepository.save(cuenta);
 
@@ -113,6 +119,15 @@ public class AuthServiceImpl implements AuthService {
         cuenta.cambiarContrasena(passwordEncoder.encode(nuevaContrasena));
         cuenta.limpiarTokenRecuperacion();
         cuentaRepository.save(cuenta);
+    }
+
+    // Codigo alfanumerico corto para el correo de recuperacion (Opcion B).
+    private String generarCodigoRecuperacion() {
+        StringBuilder sb = new StringBuilder(LONGITUD_CODIGO);
+        for (int i = 0; i < LONGITUD_CODIGO; i++) {
+            sb.append(ALFABETO_CODIGO.charAt(RANDOM.nextInt(ALFABETO_CODIGO.length())));
+        }
+        return sb.toString();
     }
 
     private boolean isBcryptHash(String value) {
