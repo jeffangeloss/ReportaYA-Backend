@@ -15,4 +15,5 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
+ENTRYPOINT []
 CMD ["/opt/java/openjdk/bin/java", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
