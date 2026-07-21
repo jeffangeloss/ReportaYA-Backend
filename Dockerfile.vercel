@@ -9,12 +9,27 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 COPY src src
 RUN ./mvnw package -DskipTests -B
 
-FROM alpine:3.22
+FROM eclipse-temurin:17-jre-alpine AS cds
 
 WORKDIR /app
-RUN apk add --no-cache libstdc++
-COPY --from=build /opt/java/openjdk /opt/java/openjdk
 COPY --from=build /app/target/*.jar app.jar
 
+RUN SPRING_DATASOURCE_URL=jdbc:h2:mem:cds \
+    SPRING_DATASOURCE_USERNAME=sa \
+    SPRING_DATASOURCE_PASSWORD=cds \
+    SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver \
+    SPRING_JPA_HIBERNATE_DDL_AUTO=none \
+    JWT_SECRET=cds-training-secret-at-least-32-bytes \
+    /opt/java/openjdk/bin/java \
+      -XX:ArchiveClassesAtExit=application.jsa \
+      -Dspring.context.exit=onRefresh \
+      -jar app.jar
+
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+COPY --from=cds /app/app.jar app.jar
+COPY --from=cds /app/application.jsa application.jsa
+
 EXPOSE 8080
-ENTRYPOINT ["/opt/java/openjdk/bin/java", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
+CMD ["java", "-XX:SharedArchiveFile=application.jsa", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
