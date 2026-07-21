@@ -70,3 +70,5 @@ hs_err_pid*
 
 # Keep readme
 !README.md
+.vercel
+.env*
