@@ -9,6 +9,8 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Configuration
 public class FirebaseConfig {
@@ -16,18 +18,12 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
-            try {
-                ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
-
-                // Verificar si el archivo existe
-                if (!resource.exists()) {
-                    System.err.println("⚠️  WARNING: firebase-service-account.json no encontrado.");
+            try (InputStream serviceAccount = openCredentials()) {
+                if (serviceAccount == null) {
+                    System.err.println("⚠️  WARNING: credenciales de Firebase no encontradas.");
                     System.err.println("⚠️  Las notificaciones Firebase NO estarán disponibles.");
-                    System.err.println("⚠️  La aplicación continuará funcionando sin notificaciones push.");
-                    return null; // Retornar null para permitir que la app inicie
+                    return null;
                 }
-
-                InputStream serviceAccount = resource.getInputStream();
 
                 FirebaseOptions options = FirebaseOptions.builder()
                         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -42,5 +38,23 @@ public class FirebaseConfig {
             }
         }
         return FirebaseApp.getInstance();
+    }
+
+    private InputStream openCredentials() throws IOException {
+        String configuredPath = System.getenv().getOrDefault(
+                "FIREBASE_CREDENTIALS_PATH",
+                "/etc/secrets/firebase-service-account.json");
+        Path secretPath = Path.of(configuredPath);
+
+        if (Files.isRegularFile(secretPath)) {
+            return Files.newInputStream(secretPath);
+        }
+
+        try {
+            ClassPathResource resource = new ClassPathResource("firebase-service-account.json");
+            return resource.exists() ? resource.getInputStream() : null;
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 }
