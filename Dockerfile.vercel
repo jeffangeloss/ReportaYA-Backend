@@ -9,11 +9,12 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 COPY src src
 RUN ./mvnw package -DskipTests -B
 
-FROM eclipse-temurin:17-jre-alpine
+FROM alpine:3.22
 
 WORKDIR /app
+RUN apk add --no-cache libstdc++
+COPY --from=build /opt/java/openjdk /opt/java/openjdk
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-ENTRYPOINT ["/opt/java/openjdk/bin/java"]
-CMD ["-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
+CMD ["/opt/java/openjdk/bin/java", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
