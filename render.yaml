@@ -2,6 +2,7 @@ services:
   - type: web
     name: reportaya-backend
     runtime: docker
+    repo: https://github.com/jeffangeloss/ReportaYA-Backend.git
     plan: free
     branch: main
     dockerfilePath: ./Dockerfile
