@@ -32,4 +32,4 @@ COPY --from=cds /app/app.jar app.jar
 COPY --from=cds /app/application.jsa application.jsa
 
 EXPOSE 8080
-CMD ["java", "-XX:SharedArchiveFile=application.jsa", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
+CMD ["/opt/java/openjdk/bin/java", "-XX:SharedArchiveFile=application.jsa", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
