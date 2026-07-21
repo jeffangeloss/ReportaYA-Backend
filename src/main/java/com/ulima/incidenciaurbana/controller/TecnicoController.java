@@ -3,7 +3,10 @@ package com.ulima.incidenciaurbana.controller;
 import com.ulima.incidenciaurbana.dto.CompletarReporteRequest;
 import com.ulima.incidenciaurbana.dto.ReporteDTO;
 import com.ulima.incidenciaurbana.dto.TecnicoDTO;
+import com.ulima.incidenciaurbana.exception.ForbiddenException;
 import com.ulima.incidenciaurbana.service.ITecnicoService;
+import com.ulima.incidenciaurbana.util.RequestAuth;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -56,7 +59,15 @@ public class TecnicoController {
     public ResponseEntity<?> completarReporte(
             @PathVariable Long id,
             @PathVariable Long reporteId,
-            @Valid @RequestBody CompletarReporteRequest request) {
+            @Valid @RequestBody CompletarReporteRequest request,
+            HttpServletRequest httpRequest) {
+        // Solo un TECNICO puede completar, y solo sus propios reportes: el id del
+        // path debe coincidir con la cuenta del token (no se puede completar como otro).
+        RequestAuth.requireRole(httpRequest, RequestAuth.TECNICO);
+        Long actor = RequestAuth.cuentaId(httpRequest);
+        if (actor == null || !actor.equals(id)) {
+            throw new ForbiddenException("Solo el tecnico asignado puede completar este reporte.");
+        }
         try {
             ReporteDTO reporteDTO = tecnicoService.completarReporte(id, reporteId, request);
             return ResponseEntity.ok(Map.of(

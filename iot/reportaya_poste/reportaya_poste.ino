@@ -66,10 +66,12 @@ const uint32_t COOLDOWN_MS  = 15000;    // exhibicion del estado terminal antes 
 const uint32_t SENSE_MS     = 1000;     // cada cuanto se leen los sensores
 const uint32_t WIFI_RETRY_MS= 10000;    // reintento de reconexion WiFi
 
-// Umbrales de histeresis del FC-28 (0-4095; DRY=3300, WET=1300).
-// Entra a "saturado" si el valor cae por debajo de IN; sale solo si supera OUT.
-const int SOIL_WET_IN  = 1600;
-const int SOIL_WET_OUT = 2200;
+// Umbrales de histeresis del FC-28 (0-4095; seco pega ~4095, humedo baja).
+// Umbrales rebajados: dispara con humedad moderada (valor < 2500) en vez de
+// exigir suelo empapado. Entra a "saturado" si cae por debajo de IN; sale
+// solo si supera OUT (banda muerta anti-oscilacion).
+const int SOIL_WET_IN  = 2500;
+const int SOIL_WET_OUT = 3000;
 // ===============================================================
 
 // -------------------------- PINES ------------------------------

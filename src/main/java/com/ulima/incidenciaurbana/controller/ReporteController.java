@@ -8,6 +8,8 @@ import com.ulima.incidenciaurbana.model.TipoProblema;
 import com.ulima.incidenciaurbana.service.IFotoService;
 import com.ulima.incidenciaurbana.service.IReporteQueryService;
 import com.ulima.incidenciaurbana.service.IReporteService;
+import com.ulima.incidenciaurbana.util.RequestAuth;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,7 +76,9 @@ public class ReporteController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarReporte(
-            @PathVariable Long id, @RequestBody ReporteDTO reporteDTO) {
+            @PathVariable Long id, @RequestBody ReporteDTO reporteDTO,
+            HttpServletRequest request) {
+        RequestAuth.requireRole(request, RequestAuth.OPERADOR);
         try {
             return ResponseEntity.ok(reporteService.actualizarReporte(id, reporteDTO));
         } catch (RuntimeException e) {
@@ -84,7 +88,9 @@ public class ReporteController {
 
     @PatchMapping("/{id}/estado")
     public ResponseEntity<?> cambiarEstado(
-            @PathVariable Long id, @RequestParam EstadoReporte nuevoEstado) {
+            @PathVariable Long id, @RequestParam EstadoReporte nuevoEstado,
+            HttpServletRequest request) {
+        RequestAuth.requireRole(request, RequestAuth.OPERADOR);
         try {
             return ResponseEntity.ok(reporteService.cambiarEstadoReporte(id, nuevoEstado));
         } catch (RuntimeException e) {
@@ -94,7 +100,9 @@ public class ReporteController {
 
     @PostMapping("/{id}/rechazar")
     public ResponseEntity<?> rechazarReporte(
-            @PathVariable Long id, @RequestParam String motivo) {
+            @PathVariable Long id, @RequestParam String motivo,
+            HttpServletRequest request) {
+        RequestAuth.requireRole(request, RequestAuth.OPERADOR);
         try {
             return ResponseEntity.ok(reporteService.rechazarReporte(id, motivo));
         } catch (RuntimeException e) {
@@ -144,7 +152,8 @@ public class ReporteController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarReporte(@PathVariable Long id) {
+    public ResponseEntity<?> eliminarReporte(@PathVariable Long id, HttpServletRequest request) {
+        RequestAuth.requireRole(request, RequestAuth.OPERADOR);
         try {
             reporteService.eliminarReporte(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

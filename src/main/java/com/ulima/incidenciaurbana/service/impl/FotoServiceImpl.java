@@ -41,7 +41,12 @@ public class FotoServiceImpl implements IFotoService {
         Reporte reporte = reporteRepository.findById(reporteId)
                 .orElseThrow(() -> new RuntimeException("Reporte no encontrado con id: " + reporteId));
 
-        byte[] decodedBytes = Base64.getDecoder().decode(archivoBase64);
+        // Acepta tanto base64 puro como un data-URI ("data:image/png;base64,...."):
+        // si viene el prefijo, se descarta y solo se decodifica la carga util.
+        String base64Limpio = archivoBase64.contains(",")
+                ? archivoBase64.substring(archivoBase64.indexOf(',') + 1)
+                : archivoBase64;
+        byte[] decodedBytes = Base64.getDecoder().decode(base64Limpio);
         String extension = determinarExtension(decodedBytes);
         String nombreArchivo = "fotos/reporte-" + reporteId + "-" + tipo + "-"
                 + UUID.randomUUID() + "." + extension;
@@ -65,9 +70,13 @@ public class FotoServiceImpl implements IFotoService {
         Foto foto = new Foto(reporte, urlFoto, tipo, descripcion);
         foto = fotoRepository.save(foto);
 
+        return toDTO(foto);
+    }
+
+    private FotoDTO toDTO(Foto foto) {
         FotoDTO dto = new FotoDTO();
         dto.setId(foto.getId());
-        dto.setReporteId(reporteId);
+        dto.setReporteId(foto.getReporte().getId());
         dto.setUrl(foto.getUrl());
         dto.setTipo(foto.getTipo());
         dto.setDescripcion(foto.getDescripcion());
