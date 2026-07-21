@@ -38,6 +38,7 @@
 */
 
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
@@ -47,14 +48,13 @@
 // ======================= CONFIG (EDITAR) =======================
 const char*  WIFI_SSID      = "TU_RED_WIFI";       // <-- SSID de tu red (hotspot/router)
 const char*  WIFI_PASS      = "TU_PASSWORD_WIFI";  // <-- contrasena de esa red
-String       BASE_URL       = "http://172.20.10.14:8081";    // <-- IP LAN del laptop del backend
-// OJO: esta IP la asigna el router por DHCP y PUEDE CAMBIAR al reconectar el
-// laptop. Si el poste deja de conectar, verifica la IP (ipconfig getifaddr en0)
-// y actualizala aqui. Para que no cambie: reserva la IP en el router o fija una
-// IP manual en macOS (Ajustes de red -> TCP/IP -> Manual).
+String       BASE_URL       = "https://reportaya-backend.onrender.com";  // <-- backend DESPLEGADO (HTTPS)
+// El poste apunta al backend publico en Render (via el hotspot con internet),
+// ya no depende de la IP local del laptop. Al ser HTTPS se usa WiFiClientSecure
+// con setInsecure() (demo: no valida el certificado TLS de Render).
 const char*  SVC_USER       = "poste_iot";
 const char*  SVC_PASS       = "poste123";
-long         SVC_CUENTA_ID  = 14;                             // <-- id de db/seed-cuenta-iot.sql
+long         SVC_CUENTA_ID  = 7;                             // <-- id de poste_iot en Neon (el login lo corrige igual)
 const double POSTE_LAT      = -12.08640;
 const double POSTE_LNG      = -77.05000;
 const char*  POSTE_DIR      = "Esquina Av. Salaverry, Jesus Maria (demo)";
@@ -236,9 +236,11 @@ void modoIdle() {
 //  CLIENTE REST ReportaYA
 // ===============================================================
 bool ry_login() {
+  WiFiClientSecure client;
+  client.setInsecure();                 // demo: no valida el cert TLS de Render
   HTTPClient http;
-  http.setConnectTimeout(3000); http.setTimeout(4000);
-  if (!http.begin(BASE_URL + "/api/auth/login")) return false;
+  http.setConnectTimeout(10000); http.setTimeout(20000);  // TLS + posible cold start de Render
+  if (!http.begin(client, BASE_URL + "/api/auth/login")) return false;
   http.addHeader("Content-Type", "application/json");
 
   JsonDocument body;
@@ -281,9 +283,11 @@ void auth_tick() {
 long ry_crearReporte(const char* tipo, const String& titulo, const String& desc) {
   if (!ry_ensureAuth()) return -1;
 
+  WiFiClientSecure client;
+  client.setInsecure();
   HTTPClient http;
-  http.setConnectTimeout(3000); http.setTimeout(5000);
-  if (!http.begin(BASE_URL + "/api/reportes")) return -1;
+  http.setConnectTimeout(10000); http.setTimeout(20000);
+  if (!http.begin(client, BASE_URL + "/api/reportes")) return -1;
   http.addHeader("Content-Type", "application/json");
   http.addHeader("Authorization", "Bearer " + jwtToken);
 
@@ -319,9 +323,11 @@ long ry_crearReporte(const char* tipo, const String& titulo, const String& desc)
 Estado ry_consultarEstado(long id) {
   if (id < 0 || !ry_ensureAuth()) return E_DESCONOCIDO;
 
+  WiFiClientSecure client;
+  client.setInsecure();
   HTTPClient http;
-  http.setConnectTimeout(3000); http.setTimeout(4000);
-  if (!http.begin(BASE_URL + "/api/reportes/" + String(id))) return E_DESCONOCIDO;
+  http.setConnectTimeout(10000); http.setTimeout(20000);
+  if (!http.begin(client, BASE_URL + "/api/reportes/" + String(id))) return E_DESCONOCIDO;
   http.addHeader("Authorization", "Bearer " + jwtToken);
 
   int code = http.GET();
