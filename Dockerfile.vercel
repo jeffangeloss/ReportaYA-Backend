@@ -17,4 +17,4 @@ COPY --from=build /opt/java/openjdk /opt/java/openjdk
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-CMD ["/opt/java/openjdk/bin/java", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
+ENTRYPOINT ["/opt/java/openjdk/bin/java", "-XX:TieredStopAtLevel=1", "-XX:+UseSerialGC", "-Xss512k", "-Dspring.jmx.enabled=false", "-jar", "app.jar"]
